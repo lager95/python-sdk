@@ -17,6 +17,7 @@ from openfeature.hook import Hook
 from openfeature.provider import FeatureProvider, ProviderStatus
 from openfeature.provider.in_memory_provider import InMemoryFlag, InMemoryProvider
 from openfeature.provider.no_op_provider import NoOpProvider
+from openfeature.tracking_event_details import TrackingEventDetails
 from openfeature.transaction_context import ContextVarsTransactionContextPropagator
 
 
@@ -557,3 +558,17 @@ def test_client_should_merge_contexts():
     assert context.attributes["transaction_attr"] == "transaction_value"
     assert context.attributes["client_attr"] == "client_value"
     assert context.attributes["invocation_attr"] == "invocation_value"
+
+
+def test_implements_a_tracking_function():
+    provider = MagicMock
+    set_provider(provider)
+    client = get_client(str(uuid.uuid4()))
+
+    evaluation_context = EvaluationContext()
+    tracking_event_name = "tracking_event_name"
+    tracking_event_details = TrackingEventDetails()
+    client.track(tracking_event_name)
+    client.track(tracking_event_name, evaluation_context)
+    client.track(tracking_event_name, evaluation_context, tracking_event_details)
+    client.track(tracking_event_name, tracking_event_details=tracking_event_details)
